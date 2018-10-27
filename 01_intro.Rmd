@@ -1,10 +1,10 @@
 ---
-title: "SM II - R Workshop"
-author: "Fabio Votta"
-date: "16 10 2018"
-output: html_document
+title: "Computational Social Science Workshop"
+subtitle: "A Gentle Introduction to R: Basics"
+author: "R User Group"
+date: "05.11.2018"
+output: pdf_document
 ---
-
 
 ## Grundlagen
 
@@ -14,7 +14,7 @@ Das ist ein Chunk:
 
 
 ```{r}
-print("Hallo was geht?")
+print("Hello World!")
 
 ```
 
@@ -56,7 +56,6 @@ __Führe einfach mal den folgenden Chunk aus!__
 x <- 2   #definiere x als 1
 
 x
-
 ```
 
 **Aufgaben:**
@@ -114,10 +113,11 @@ Vektoren in R sind einfach mehrere Werte die aneinander gebunden werden. Diese k
 
 
 ```{r}
+c(4, 1, 3, 4, 8)
+
 vektor <- c(4, 1, 3, 4, 8) #definiere Vektor mit den Werten 4, 1, 3, 4 und 8
 
 vektor
-
 ```
 
 Operatoren können auch ganz einfach mit Vektoren angewandt werden.
@@ -166,13 +166,13 @@ Definieren wir doch mal eine Funktion, welche Werte die man als *input* eingibt 
 **Beispiele:**
 
 ```{r}
-quadrieren <- function(x) { 
+quadrieren <- function(input) { 
   output <- input^2        #nehme den input hoch 2 und speichere ihn in output
-  output                   #gebe output aus
+  return(output)                   #gebe output aus
 }
 
 #Funktion ausprobieren!
-quadrieren(2)              
+quadrieren(9)   
 ```
 
 Wir können auch zwei oder mehrere Argumente zu einer Funktion hinzufügen. Probieren wir das gleiche doch mal mit einer Funktion die jeder aus dem Physik - Unterricht kennen sollte:
@@ -194,15 +194,15 @@ distanz <- function(v, t) {
 }
 
 #Funktion ausprobieren!
-distanz(50, 6)
+distanz(v = 50, t = 6)
 ```
 
 Nun müssen wir allerdings nicht immer selber Funktionen definieren. Im Gegenteil! `Base R` und die vielen Packages haben unzählige Funktionen, die Datenbearbeitung einfach machen. Beispielsweise gibt `mean()` den Mittelwert eines Vektors aus und `sd()` gibt die Standardabweichung.
 
 ```{r}
-vektor
-mean(vektor)   #gib den Mittelwert von vektor aus
-sd(vektor)     #gib die Standardabweichung von vektor aus
+vektor2 <- 1:5
+mean(vektor2)   #gib den Mittelwert von vektor aus
+sd(vektor2)     #gib die Standardabweichung von vektor aus
 ```
 
 ### Vektoren II
@@ -225,8 +225,6 @@ num <- c(1, 2, 3)
 class(char)
 class(fac)
 class(num)
-
-
 ```
 
 
@@ -240,587 +238,7 @@ class(num)
 
 
 ```{r}
-
 as.character(num)
 as.factor(char)
 as.numeric(fac)
-
-```
-
-### Dataframes
-
-Die meiste Zeit werden wir in R nicht mit Vektoren arbeiten, sondern mit *dataframes*. Dataframes sind letztendlich einfach nur angeordnete Vektoren und essentiell wichtig für die Datenanalyse.
-
-__Lasst uns mal einen Beispieldatensatz einladen.__
-
-[**DOWNLOAD European Social Survey Data**](http://www.europeansocialsurvey.org/data/round-index.html)
-
-
-Der European Social Survey ist ein transnationales Survey-Projekt und enthält über 34.000 Befragte und hunderte von Variablen zu politischen und sozio-ökonomischen Fragestellungen.
-
-Zunächst laden wir den Datensatz ein
-
-```{r}
-load("data/ess_ger.Rdata")
-```
-
-Hier ein kleiner Ausschnitt aus dem Datensatz, welches nur das Subset *Deutschland* zeigt:
-
-```{r, eval = F}
-ess_ger
-```
-
-
-Möglicherweise habt ihr bemerkt, dass R Buchstabenabk?rzungen unter den Spaltennamen des Datensatzes `ess_ger` anzeigt. Diese Abkürzungen beschreiben den Typ der Variablen, die in jeder Spalte gespeichert sind:
-
-* `int` steht für ganze Zahlen (integers).
-
-* `dbl` steht für Doubles oder reelle Zahlen.
-
-* `chr` steht für Zeichenvektoren oder Zeichenfolgen.
-
-* `fctr` steht für Faktoren, die R verwendet, um kategoriale Variablen darzustellen.
-
-Eine Sache fällt dir vielleicht auch auf: das Kürzel _NA_ steht für _Not Available_ und denotiert missing values oder fehlende Werte.
-
-**Codebook**
-
-* id             - ID des Befragten
-* gender         - Geschlecht des Befragten
-* age            - Alter des Befragten
-* left_right     - Links-Rechts Einstufung des Befragten
-* party_ger      - Parteiidentifikation
-* fake_refugee   - "Die meisten Flüchtlinge sind nicht echt"
-
-**Datenzugriff**
-
-Sehr angenehm kann man auf einzelne Variablen mit Hilfe des Dollarzeichens in der Form `data$variable` zugegriffen werden.
-
-```{r, eval = F}
-ess_ger
-
-head(ess_ger$gender)   #zeige die ersten 5 Stellen von gender
-tail(ess_ger$gender)   #zeige die letzten 5 Stellen von gender
-
-ess_ger$gender[1]      #zeige die erste Stelle von gender
-ess_ger$gender[2000]    #zeige die 2000. Stelle von gender
-```
-
-**Indexieren mit eckigen Klammern**
-
-Wollen wir auf verschiedene Reihen oder Spalten des dataframes zugreifen, können wir das in folgenderweise tun
-
-```{r, eval = F}
-ess_ger[1, ]        #1. Reihe
-ess_ger[, 2]        #2. Spalte
-
-ess_ger[1:10, 4]    #die ersten 10 Reihen und die vierte Spalte
-```
-
-**Aufgabe**
-
-5. Gib die Reihe 1000 von `ess_ger` aus
-
-6. Gib die Reihe 1000 bis 2000 und die erste Spalte von `ess_ger` aus
-
-```{r}
-
-
-
-```
-
-
-Mit der Funktion `table()` können wir uns die Häufigkeiten der Variable ausgeben lassen.
-
-```{r}
-table(ess_ger$gender)    #zeige Häufigkeiten von Geschlecht
-table(ess_ger$party_ger) #zeige Häufigkeiten von Parteiidentifikation
-table(ess_ger$fake_refugee) #zeige die Häufigkeiten von fake_refugee
-
-```
-
-Das Ganze macht so natürlich noch nicht so viel Sinn, da die Werte nicht gelabelled sind. Daher müssen wir die Variablen **rekodieren**. Das lernen wir sogleich mit dem **Tidyverse**.
-
-## Tidyverse
-
-Neben `Base R` gibt es das **Tidyverse**, dass viele mächtige Packages enthält! 
-
-Hier eine kleine Übersicht von relevanten Funktionen, die wir brauchen werden:
-
-| Bedeutung               | tidyverse - Funktionen |
-|-------------------------|------------------------|
-| Neue Variable erstellen |      mutate()          |
-| Rekodieren (binär)      |      ifelse()          |
-| Rekodieren              |      case_when()       |
-| Variablen auswählen     |      select()          |
-| Subset erstellen        |      filter()          |
-| Variablennamen ändern   |      rename()          |
-| pipe operator           |      %>%               |
-| Datensatz gruppieren    |      group_by()        |
-| Zusammenfassen          |      summary()         |
-
-
-Zunächst einmal müssen wir das Package installieren und laden. Das geht mit den folgenden zwei Befehlen: `install.packages` und `library`.
-
-(Wenn `install_packages.R` am Anfang der Sitzung erfolgreich ausgeführt wurde dann müsst ihr das nicht mehr machen)
-
-```{r, eval = F}
-install.packages("tidyverse")
-library(tidyverse)
-```
-
-
-Eine viel enstpannteres Funktion, welche Packages gleichzeitig installiert und einlädt nennt sich `pacman`. Zunächsten installieren wir es:
-
-```{r, eval = F}
-install.packages("pacman")
-```
-
-Und installieren und laden dann alle packages die brauchen auf folgende Weise:
-
-```{r}
-pacman::p_load(tidyverse)
-```
-
-Wenn man ein Package nicht laden will sondern nur eine Funktion daraus, dann kann man auch zwei Doppelpunkte `::` hinter den Packagenamen schreiben und die nötige Funktion danach denotieren.
-
-**Let's get it started!**
-
-### mutate
-
-**Neue Variablen erstellen mit mutate()**
-
-Mit `mutate()` wird/werden eine oder mehrere neue Variable(n) erzeugt und an den Datensatz hinten angefügt.
-
-**Beispiel**
-
-Statt dem Alter wollen wir nun das Geburstjahr haben. Einfacherweise ziehen wir das jetzige Jahr (2018) vom Alter ab um das Geburtsjahr zu erhalten. Die neue Variable nennen wir `birth`.
-
-```{r}
-mutate(ess_ger, birth = 2018 - age)
-
-
-```
-
-Weisen wir den Datensatz wieder `ess_ger` zu, so wird unsere Veränderung auch im Objekt festgehalten
-
-```{r}
-ess_ger <- mutate(ess_ger, birth = 2017 - age)
-
-ess_ger
-```
-
-
-**Aufgabe**
-
-Die Links-Rechts Skala geht von 0 - 10. Teile die Variable durch 10 um einen Range von 0 - 1 zu erhalten. Nenne die Variable `lr01`. Mit `mutate()` wird die Variable hinten angehangen. 
-
-```{r}
-mutate(ess_ger, lr01 = left_right)
-
-
-```
-
-### ifelse
-
-Die Funktion `ifelse()` testet eine logische Bedingung in ihrem ersten Argument. Wenn der Test `TRUE` ist, gibt `ifelse()` das zweite Argument zur?ck. Wenn der Test `FALSE` ist, gibt `ifelse()` das dritte Argument zur?ck.
-
-Also in folgender Form: 
-
-`ifelse(logischer Test, was passiert wenn zutrifft, was passiert wenn nicht zutrifft)`
-
-Das können wir in Kombination mit `mutate` benutzen.
-
-**Beispiel:**
-
-Nehmen wir an, dass wir die Altervariable als eine dummy Variable (zwei Ausprägungen) benutzen wollen. Am besten geht das mit `ifelse()`. Kodieren wir doch einmal die 18-40 Jährigen als eine Gruppe und über 40 Jährige als eine andere Gruppe.
-
-Eine Variable `u40` erstellen welche die 18 bis 40 J?hrigen und die ?ber 40 J?hrigen in eine Gruppe teilt.
-
-```{r}
-mutate(ess_ger, u40 = ifelse(age <= 40, "18 - 40" ,"> 40"))
-#darauf achten, dass bei strings ('Wörtern') Anführungsstriche gemacht werden müssen!
-
-```
-
-```{r}
-ess_ger <- mutate(ess_ger, gender_rec = ifelse(gender == 1, "männlich" ,"weiblich"))
-#darauf achten, dass bei strings ('Wörtern') Anführungsstriche gemacht werden müssen!
-
-ess_ger
-```
-
-**Aufgabe**
-
-7. Kodiere `gender_rec` in der folgenden Art und Weise:
-
-1 = "männlich"
-2 = "weiblich"
-
-Überschreibe `ess_ger` zeige den Datensatz!
-
-```{r}
-
-
-```
-
-### case_when
-
-Was aber wenn wir mehrere Werte rekodieren wollen? Enter the world of `case_when`.
-
-Mit `case_when` können wir einzelne Variablen rekodieren und sogar Bedingungen nach Lust und Laune mixen. Hier ein Beispiel:
-
-```{r}
-mutate(ess_ger, fake_refugee_num = case_when(
-  fake_refugee == "Agree strongly" ~ 1,
-  fake_refugee == "Agree" ~ 2,
-  fake_refugee == "Neither agree nor disagree" ~ 3,
-  fake_refugee == "Disagree" ~ 4,
-  fake_refugee == "Disagree strongly" ~ 5
-))
-```
-
-Jede Bedingung untereinander gereiht und mit einem Komma getrennt. Wenn eine Bedingung ein `TRUE` Statement ist, dann wird mit dem `~` Operator der entsprechende Wert zugewiesen. Gibt man `TRUE` selbst an, so kann man "alle anderen" Ausprägungen, die nicht vorher abgefragt worden sind einen Wert zuweisen. Gibt man die Originalvariable an, so bleiben die restlichen Werte wie sie sind.
-
-**Aufgabe**
-
-8. Generiere eine neue Variable `party_ger_cat` mit den folgenden Ausprägungen:
-
-- 1 = "CDU/CSU"
-- 2 = "SPD" 
-- 3 = "Die Linke"
-- 4 = "Bündnis 90/ Die Grünen"
-- 5 = "FDP"
-- 6 = "AfD"
-- 7 bis 9 = "Andere"
-
-9. Überschreibe `ess_ger` und zeige die Häufigkeiten mit Hilfe der `table()` Funktion.
-
-Tipp: Hierzu brauchst du die `party_ger` Variable!
-
-```{r}
-
-ess_ger %>%
-  mutate(party_ger_cat = case_when(
-                 party_ger == 1 ~ "CDU/CSU",
-                 party_ger == 2 ~ "SPD",
-                 party_ger == 3 ~ "Die Linke",
-                 party_ger == 4 ~ "Bündnis 90/ Die Grünen",
-                 party_ger == 5 ~ "FDP",
-                 party_ger == 6 ~ "AfD",
-                 party_ger %in% 7:9 ~ "Andere")) 
-
-
-```
-
-### select
-
-Mit `select` werden Spalten (=Vektoren/Variablen) mittels dem Variablennamen oder einer Hilfsfunktion ausgewählt. 
-
-Wählen wir wieder nur die zwei folgenden Variables aus: 
-
-- `age`
-- `fake_refugee` 
-
-```{r}
-select(ess_ger , age, fake_refugee)
-
-```
-
-`Select` eignet sich auch dafür Variablen aus einem bestehenden dataframe zu entfernen. Dies ist ganz einfach zu lösen mit einem `-` (Minus).
-
-**Aufgaben**
-
-10. Wähle die folgende Variablen aus:
-
-- `gender_rec` 
-- `left_right`
-- `party_ger_cat`
-
-11. Wähle alle Variablen **außer** `fake_refugee` und `age`.
-
-
-```{r}
-ess_ger_sub <- select(ess_ger , gender_rec, left_right, age)
-
-ess_ger_sub
-
-```
-
-
-### filter
-
-**Zeilen auswählen mit filter()**
-
-Mit `filter()` behält man oder selektiert man Zeilen eines Datensatzes, welche bestimmte logische Kriterien oder Konditionen erfüllen. Damit wird ein Subset (Untergruppe) gebildet. Wir wählen jetzt nur die Fälle aus, welche unser Kriterium erfüllen. Jetzt zeigen wir uns Personen an, welchse sich mit der *FDP* identifizieren.
-
-**Beispiel:**
-
-```{r, eval = F}
-filter(ess_ger, party_ger == 1)
-
-```
-
-**Aufgaben**
-
-12. Filtere den Datensatz und zeige nur die Personen, welche sich mit der AfD identifizieren.
-
-13. Filtere den Datensatz und zeige nur die Personen, welche unter 30 Jahre alt sind und sich als eher ganz rechts (gröer gleich 8) einstufen.
-
-14. Filtere den Datensatz und zeige nur die Personen, welche sich mit der FDP identifizieren und die Mehrheit der Fl?chtlinge als nicht wirklich politisch verfolgt ansehen ("Agree" und "Agree strongly").
-
-*Hier nochmal die Operatoren zum spicken ;)*
-
-- `==` (logisch) ist gleich
-- `!=` (logisch) ist ungleich
-- `>` größer als
-- `<` kleiner als
-- `>=` größer gleich
-- `<=` kleiner gleich
-
-```{r}
-
-
-
-```
-
-
-### rename
-
-Variablen umbennen mit `rename()`
-
-Mit `rename()` lassen sich die Variablen umbennen. Beispielhaft ?bersetzen wir `age`, `gender` und `links_rechts` Variablennamen ins Deutsche.
-
-**Beispiel:**
-
-```{r}
-rename(ess_ger,
-    alter = age,
-    geschl = gender,
-    links_rechts = left_right)
-
-## ist das gleiche wie:
-
-rename(ess_ger,alter = age)
-rename(ess_ger, geschl = gender)
-rename(ess_ger, links_rechts = left_right)
-```
-
-
-### %>%
-
-Mit der Hilfe von `%>%` können alle diese Operationen auf einmal ausgeführt werden!
-
-[Prozent größer Prozent] wird pipe operator genannt. Diese Pipe ermöglicht es Daten einfacher, verständlicher und lesbarer und ohne Verlust von Flexibilität zu transformieren.
-
-Den pipe operator kann man sich als "danach" vorstellen. 
-
-**Hier ein Beispiel:**
-
-```{r, eval = F}
-ess_ger %>%
-  select(age, gender, left_right, party_ger) %>% 
-  rename(alter = age, geschl = gender, links_rechts = left_right) %>% 
-  select(alter, geschl)
-
-
-```
-
-Jetzt seid ihr dran!
-
-Benutzt die pipe für folgende Aufgaben:
-
-15. Selektiere die folgenden Variablen
-
-- `gender_rec`
-- `age`
-- `left_right`
-- `party_ger_cat`
-- `fake_refugee` 
-
-16. Filtere die Variable und zeige nur Fälle mit der Ausprägung `männlich` 
-
-17. Erstelle eine neue Variable namens `links` mit der Ausprägung `1` für die Werte 0, 1, 2, 3 und `0` für alle anderen.
-
-18. Benenne die Variable `fake_refugee` in `anti_refugee` um.
-
-19. Selektiere die folgenden Variablen
-
-- `gender_rec`
-- `age`
-- `links`
-- `anti_refugee`
-
-
-```{r}
-
-
-
-
-
-```
-
-### group_by + summary
-
-**Gruppieren und Summaries**
-
-Mit `group_by()` werden die nachfolgden Operationen gruppenweise ausgeführt. Mit `summarise()` werden die gruppierten Variablen aggregiert
-
-```{r, eval = F}
-ess_ger %>%
-  group_by(party_ger_cat) %>% # Gruppenvariable
-  summarise(mean_age = mean(age, na.rm = T))
-```
-
-**Aufgabe**
-
-20. Gruppiere `ess_ger` nach `gender_rec` und rechne den Mittelwerte der Links-Rechts Skala (`left_right`) per Geschlecht aus. Vergiss nicht `na.rm = T` zu spezifizieren!
-
-```{r}
-
-```
-
-
-### group_by + tally
-
-Um die Fälle innerhalb einer Gruppe zu zählen wird `tally()` eingesetzt.
-
-```{r}
-ess_ger %>%
-  group_by(fake_refugee) %>%
-  tally
-```
-
-
-## Data Visualization mit ggplot2
-
-**Warum ggplot2?**
-
-+ konsistente *grammar of graphics* (Wilkinson, 2005)
-+ Plot-Spezifikation auf hohem Abstraktionsniveau
-+ sehr flexibel
-+ ausgereiftes und komplettes Grafiksystem
-+ viele Benutzer
-
-**Was ist die *grammar of graphics*?**
-
-Die Grundidee: Plot-Bausteine unabhängig voneinander zusammenstellen und kombinieren so, dass nahezu jede gewünschte grafische Darstellung erstellt werden können. Jede Graphik besteht mindestens aus drei Teilen:
-
-Daten und der `ggplot()` Funktion
-ästhetische Kartierung (`aes()`)
-geometrische Objekte   (`geom_`)
-
-### Histogramme
-
-```{r}
-ggplot(ess_ger, aes(x = age)) +
-  geom_histogram()
-```
-
-### Scatterplot
-
-```{r}
-ggplot(ess_ger, aes(x = age, left_right)) +
-  geom_point()
-```
-
-```{r}
-ggplot(ess_ger, aes(x = age, left_right)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-
-```
-
-
-### Boxplots
-
-```{r, eval = F}
-ggplot(ess_ger, aes(x = party_ger_cat, left_right)) +
-  geom_boxplot()
-```
-
-
-## Datenimport und -export
-
-Für den Datenimport muss als erstes der Ordnerpfad für das *working directory* festgelegt werden. Das geht am besten durch einen Rechtsklick auf **Datensatz -> Ordnerpfad**. Bei Windows müssen die Slashes von `\` zu `/` geändert werden.
-
-```{r, eval=F}
-#speichere Pfad in path_data
-path_data <- "C:/Users/Fabio/Dropbox/9. Semester Master/Tutorium"
-#setwd() setzt den working directory zu path_data
-setwd(path_data) 
-#getwd() zeigt an wo das jetzige working directory sich befindet
-getwd()          
-```
-
-Darauf können wir aber verzichten wenn wir **Projekte** verwenden. Hier sollten wir unsere Datensätze am besten in einem Unterordner mit dem Namen *data* speichern.
-
-**Rdata**
-
-Ist das R-native Datenformat.
-
-```{r, eval=F}
-#Import
-dat <- get(load("file_name.Rdata"))  #lade Datensatz und weise ihn dat zu
-#Export
-save(dat, file = "file_name.Rdata")  #speichere Datensatz
-```
-
-
-**SPSS**
-
-Das package `haven` erlaubt es Datensätze zwischen den gängigsten Statistik-Programmen zu transportieren.
-
-```{r, eval=F}
-# install.packages("haven")        #installiere package "haven"
-# library(haven)                   #lade package haven
-pacman::p_load(haven)
-
-#Import
-dat <- read_sav("file_name.sav")   #lade Datensatz und weise ihn dat zu
-#Export
-write_sav(dat, "file_name.sav")    #speichere Datensatz
-```
-
-
-
-**CSV**
-
-Wenn ein Excel-Datensatz (.xlsx) vorliegt kann dieser einfach in csv (comma sperated values) abgespeichert werden.
-
-```{r, eval=F}
-# install.packages("readr")        #installiere package "readr"
-# library(readr)                   #lade package readr
-pacman::p_load(readr)              # befindet sich bereits im Tidyverse!
-
-#Import
-dat <- read_csv(file_name = "file.csv")  #lade Datensatz und weise ihn dat zu)
-#Export
-write.csv(dat, file = "file_name.csv", row.names = F) #speichere Datensatz
-```
-
-**Stata**
-
-```{r, eval=F}
-# install.packages("haven")        #installiere package "haven"
-# library(haven)                   #lade package haven
-pacman::p_load(haven)
-
-#Import
-dat <- read_dta("file_name.dta")  #lade Datensatz und weise ihn dat zu
-#Export
-write_dta(dat, "file_name.dta")   #speichere Datensatz
-```
-
-**SAS**
-
-```{r, eval = F}
-# install.packages("haven")        #installiere package "haven"
-# library(haven)                   #lade package haven
-pacman::p_load(haven)
-
-#Import
-dat <- read_sas("file_name.sas7bdat")  #lade Datensatz und weise ihn dat zu
-#Export
-write_sas(d, "file_name.sas7bdat")     #speichere Datensatz
 ```

@@ -1,0 +1,115 @@
+---
+title: "Tidy Template"
+author: "Fabio Votta"
+date: "The Date"
+output: html_document
+---
+
+This script is about:
+
+
+
+## Packages and Folders
+
+```{r}
+# Install these packages if you don't have them yet
+# if (!require("pacman")) install.packages("pacman")
+# devtools::install_github("favstats/tidytemplate")
+
+pacman::p_load(tidyverse, tidytemplate, janitor, EnvStats, ggthemes, texreg)
+
+recode_missings <- function(x) {
+  ifelse(x %in% c(-88, -99), NA, x)
+}
+```
+
+
+## Load Data
+
+```{r, data}
+start_pirus <- openxlsx::read.xlsx("data/start_pirus_2018.xlsx")
+
+start_pirus <- start_pirus %>% 
+  janitor::clean_names() %>% 
+  select(subject_id, 
+         state = loc_plot_state1, 
+         city = loc_plot_city1, 
+         age, gender, education:student, 
+         social_stratum_adulthood, 
+         abuse_child, 
+         previous_criminal_activity,
+         date = date_exposure,
+         plot_target1, plot_target2, plot_target3,
+         exp_fatals = anticp_fatals_targ, inet_use = internet_use_plot, 
+         extent = extent_plot, 
+         terror_group = terrorist_group_name1, role_group, 
+         inet_rad = internet_radicalization, 
+         sm_platform = social_media_platform1,
+         radicalization_islamist:ideological_sub_category1, 
+         radicalization = radical_beliefs) %>% 
+  mutate_all(recode_missings)  %>% 
+  select(subject_id, age, gender, student, abuse_child, previous_criminal_activity, extent, terror_group, radicalization_islamist:radicalization_single_issue, radicalization, extent) %>% 
+  rename(crime_history = previous_criminal_activity) %>% 
+  mutate(type = case_when(
+    radicalization_islamist == 1 ~ "Islamism",
+    radicalization_far_right == 1 ~ "Far Right",
+    radicalization_far_left == 1 ~ "Far Left",
+    radicalization_single_issue == 1 ~ "Single Issue"
+  )) %>% 
+  select(-radicalization_islamist:-radicalization_single_issue) 
+
+start_pirus %>% 
+  count(crime_history, sort = T)
+
+save(start_pirus, file = "data/start_pirus.Rdata")
+```
+
+```{r}
+
+start_sub  %>% 
+  map(~sum(is.na(.x)))
+
+
+start_sub %>% 
+  drop_na(extent) %>% 
+  mutate(extent = as.factor(extent)) %>% 
+  ggplot(aes(extent, radicalization, color = extent)) +
+  geom_jitter(alpha = 0.3) +
+  # geom_smooth()
+  geom_boxplot(color = "black", alpha = 0.9, width = 0.3, size = 1.1) +
+  stat_n_text() +
+  EnvStats::stat_mean_sd_text() +
+  theme_tufte() +
+  scale_color_viridis_d(end = 0.8, direction = -1) +
+  coord_flip() +
+  guides(color = F) +
+  ylim(0, 6.3)
+
+ggsave_it(rad_plot, width = 8, height = 5)
+
+```
+
+
+## Analysis / Dataviz
+
+```{r, analysis}
+start_lm <- start_sub %>% 
+  drop_na(radicalization, age, gender, abuse_child, crime_history)
+
+
+
+model1 <- start_lm %>% 
+  lm(extent ~ radicalization, data = .) 
+
+model2 <- start_lm %>% 
+  lm(extent ~  radicalization + abuse_child + crime_history, data = .) 
+
+model3 <- start_lm %>% 
+  lm(extent ~  radicalization + abuse_child + crime_history + age + gender, data = .) 
+
+screenreg(list(model1, model2, model3))
+```
+
+
+
+## Conclusion
