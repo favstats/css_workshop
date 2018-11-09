@@ -1,0 +1,119 @@
+---
+title: "Computational Social Science Workshop"
+subtitle: "A Gentle Introduction to R: Tidyverse"
+author: "R User Group"
+date: "05.11.2018"
+output: html_document
+---
+
+
+## Packages
+
+```{r}
+pacman::p_load(tidyverse, ggthemes)
+
+recode_missings <- function(x) {
+  ifelse(x %in% c(-88, -99), NA, x)
+}
+```
+
+```{r, results='markup'}
+cat("
+always
+⊂_ヽ
+　 ＼＼visualize
+　　 ＼( ͡° ͜ʖ ͡°)
+　　　 >　⌒ヽ
+　　　/ 　 へ＼
+　　 /　　/　＼＼your
+　　 ﾚ　ノ　　 ヽ_つ
+　　/　/
+　 /　/|
+　(　(ヽ
+　|　|、＼data
+　| 丿 ＼ ⌒)
+　| |　　) /
+ノ )　　Lﾉ
+(_／
+")
+```
+
+
+## Load Data
+
+```{r, data}
+start_pirus <- openxlsx::read.xlsx("data/start_pirus_2018.xlsx") %>% 
+  janitor::clean_names() %>% 
+  mutate_all(recode_missings)  %>% 
+  mutate(
+    terror_type = case_when(
+      radicalization_islamist == 1 ~ "Islamism",
+      radicalization_far_right == 1 ~ "Far Right",
+      radicalization_far_left == 1 ~ "Far Left",
+      radicalization_single_issue == 1 ~ "Single Issue"
+    ) %>% 
+    forcats::fct_relevel("Single Issue")
+  ) %>%
+  mutate(unemployed = ifelse(employment_status %in% 2:3, 1, 0)) %>% 
+  mutate(married = ifelse(marital_status == 2, 1, 0)) %>% 
+  mutate(male = ifelse(gender == 2, 1, 0)) %>% 
+  mutate(mental = ifelse(psychological %in% 1:2, 1, 0)) %>% 
+  mutate(
+    crime_history = case_when(
+      previous_criminal_activity == 0 ~ "None",
+      previous_criminal_activity == 1 ~ "Non-Violent",
+      previous_criminal_activity == 2 ~ "Non-Violent",
+      previous_criminal_activity == 3 ~ "Violent"
+    ) %>% 
+    forcats::fct_relevel("None")
+  ) %>% 
+  mutate(date = as.Date(date_exposure, origin = "1899-12-30")) %>% 
+  select(
+    subject_id, 
+    date,
+    age, 
+    male, 
+    married,
+    unemployed,
+    mental,
+    abuse_child, 
+    crime_history, 
+    violent,
+    extent = extent_plot, 
+    terror_group = terrorist_group_name1,
+    radicalization = radical_beliefs,
+    clique,
+    terror_type
+  ) %>% 
+  as_tibble()
+
+start_pirus
+
+
+save(start_pirus, file = "data/start_pirus.Rdata")
+```
+
+
+## Analysis / Dataviz
+
+
+
+```{r}
+
+start_pirus %>% 
+  drop_na(extent) %>% 
+  mutate(extent = as.factor(extent)) %>% 
+  ggplot(aes(extent, radicalization, color = extent)) +
+  geom_jitter(alpha = 0.3) +
+  # geom_smooth()
+  geom_boxplot(color = "black", alpha = 0.9, width = 0.3, size = 1.1) +
+  #stat_n_text() +
+  EnvStats::stat_mean_sd_text() +
+  theme_tufte() +
+  scale_color_viridis_d(end = 0.8, direction = -1) +
+  coord_flip() +
+  guides(color = F) +
+  ylim(0, 6.3)
+
+
+```

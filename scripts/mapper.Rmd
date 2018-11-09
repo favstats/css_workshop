@@ -1,0 +1,127 @@
+---
+title: "Tidy Template"
+author: "Fabio Votta"
+date: "The Date"
+output: html_document
+---
+
+This script is about:
+
+
+
+## Packages and Folders
+
+```{r}
+# Install these packages if you don't have them yet
+# if (!require("pacman")) install.packages("pacman")
+# devtools::install_github("favstats/tidytemplate")
+
+pacman::p_load(tidyverse, tidytemplate, urbnmapr, openxlsx, viridis)
+
+# Creates folders
+# tidytemplate::data_dir()
+# tidytemplate::images_dir()
+```
+
+
+## Load Data
+
+```{r, data}
+start_pirus <- openxlsx::read.xlsx("data/start_pirus_2018.xlsx")
+
+start_pirus <- start_pirus %>% 
+  janitor::clean_names()  %>% 
+  mutate(type = case_when(
+    radicalization_islamist == 1 ~ "Islamism",
+    radicalization_far_right == 1 ~ "Far Right",
+    radicalization_far_left == 1 ~ "Far Left",
+    radicalization_single_issue == 1 ~ "Single Issue"
+  ))
+
+
+start_pirus
+
+```
+
+
+## Analysis / Dataviz
+
+```{r, analysis}
+
+start_pirus %>% 
+  rename(state_name = loc_plot_state1) %>% 
+  group_by(state_name) %>% 
+  tally() %>% 
+  left_join(urbnmapr::states) %>%
+  # filter(year == 2018) %>% 
+  ggplot(aes(long, lat, group = group, fill = n)) +
+  geom_polygon(color = "white", alpha = 0.85, size = 0.2) +
+  coord_map() +
+  theme_map() +
+  viridis::scale_fill_viridis("N", 
+                              direction = -1,
+                              option = "B")  +
+  labs(x = "", y = "",
+       title = "Number of Extremists by Target State (1948 - 2017)",
+       caption = "Profiles of Individual Radicalization in the United States (PIRUS)") +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    plot.caption = element_text(size = 10),
+    legend.justification = c(1, 0),
+    legend.position = c(1, 0.1),
+    legend.title = element_text(size = 10), 
+    #axis.ticks.length = unit(3, "cm"),
+    legend.direction = "vertical") +
+  guides(fill = guide_colorbar(barwidth = 0.7, barheight = 10,
+                title.position = "bottom", title.hjust = 0.5,
+                label.theme = element_text(colour = "black", size = 9, angle = 0)))
+
+ggsave_it(n_of_attacks, width = 8, height = 6)
+```
+
+
+```{r}
+start_pirus %>% 
+  rename(state_name = loc_plot_state1) %>% 
+  group_by(state_name, type) %>% 
+  tally() %>%
+  ungroup() %>%
+  filter(state_name != -99) %>%
+  right_join(urbnmapr::states) %>%
+  filter(is.na(n))
+#  .$n %>% is.na() %>% table
+  #distinct(state_name)
+  mutate(n = ifelse(is.na(n), 0, n)) %>%
+  # filter(year == 2018) %>% 
+  ggplot(aes(long, lat, group = group, fill = n)) +
+  geom_polygon(color = "white", alpha = 0.85, size = 0.2) +
+  coord_map() +
+  labs(fill = "Number of Refugees") +
+  theme_map() +
+  viridis::scale_fill_viridis("Number of Plots", 
+                              direction = -1,
+                              begin = 0.1,
+                              end = 0.8,
+                              option = "B", na.value="blue")  +
+  labs(x = "", y = "",
+       title = "Number of Extremists by State (2002 - 2018)",
+       caption = "Data: Department of State, Office of Admissions - Refugee Processing Center   \nTotal accepted Refugees in Timerange: 943.338\n   favstats.eu; @favstats   ") +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    plot.caption = element_text(size = 10),
+    legend.justification = c(1, 0),
+    legend.position = c(1, 0.1),
+    legend.title = element_text(size = 10), 
+    #axis.ticks.length = unit(3, "cm"),
+    legend.direction = "vertical") +
+  guides(fill = guide_colorbar(barwidth = 0.7, barheight = 10,
+                title.position = "bottom", title.hjust = 0.5,
+                label.theme = element_text(colour = "black", size = 9, angle = 0))) +
+  facet_wrap(~type, ncol = 2)
+
+ggsave_it(n_of_attacks_type, width = 8, height = 6)
+```
+
+
+
+## Conclusion

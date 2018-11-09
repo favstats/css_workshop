@@ -1,0 +1,168 @@
+---
+title: "Computational Social Science Workshop"
+subtitle: "A Gentle Introduction to R: Analysis"
+author: "R User Group"
+date: "09.11.2018"
+output: pdf_document
+---
+
+## Pre-Radicalization Criminal Activity of United States Extremists
+
+https://www.start.umd.edu/pubs/START_PIRUS_PreRadCriminalActivityofUSExtremists_Jan2018.pdf
+
+## Chunk Options
+
+```{r}
+knitr::opts_chunk$set(fig.width = 6, fig.height = 3, fig.align = "center")
+```
+
+## Packages
+
+```{r}
+pacman::p_load(tidyverse, janitor, ggthemes, texreg, sjPlot)
+
+```
+
+## Load Data
+
+```{r data}
+load("data/start_pirus.Rdata")
+
+start_pirus
+```
+
+## Lineare Regression
+
+Eine lineare Regression wird auf folgende Weise durchgeführt:
+
+```{r}
+lm(extent ~ radicalization, data = start_pirus) 
+```
+
+Genauso wie alles andere in R können wir auch eine lineare Regression in ein Objekt packen:
+
+```{r}
+model1 <- lm(extent ~ radicalization, data = start_pirus) 
+
+model1
+```
+
+Die lineare Regression in ein Objekt zu packen hilft uns dabei die Resultate der Regression näher unter die Lupe zu nehmen.
+
+`screenreg` aus dem `texreg` package gibt uns eine schöne Regressiontabelle aus:
+
+```{r}
+screenreg(model1)
+```
+
+**Aufgabe**
+
+Versucht einmal eine Regresion durchzuführen in der ihr `extent` (AV) mit `crime_history` (UV) versucht zu erklären.
+
+```{r}
+
+```
+
+
+Als nächtes wollen wir eine kleine Analyse gemeinsam ausführen. Ziel ist es zu erklären wie sich der Radikalisierungsgrad (*radicalization*) einer Person auf die Fortgeschrittenheit der Planung einer extremistischen Tat (*extent*) auswirkt. Dazu nehmen wir auch einig Kontrolle heran:
+
++ `abuse_child`
++ `crime_history`
++ `age`
++ `male`
+
+*1. Schritt: eigenen Datensatz für die Analyse erstellen und alle NAs (missing values) rauswerfen (`drop_na`)*
+
+```{r}
+start_lm <- start_pirus %>% 
+  drop_na(radicalization, age, male, abuse_child, crime_history)
+```
+
+`drop_na` entfernt alle Fälle welche in den obigen Variablen ein NA haben
+
+*2. Schritt: Bauen wir ein sequentielles Modell*
+
+```{r, analysis}
+model1 <-  lm(extent ~ radicalization, data = start_lm) 
+
+model2 <- lm(extent ~  radicalization + abuse_child + crime_history, data = start_lm) 
+
+model3 <- lm(extent ~  radicalization + abuse_child + crime_history + age + male, data = start_lm) 
+
+```
+
+*3. Schritt: Resultate darstellen*
+
+`screenreg` erlaubt es uns auch mit `list` mehrere Modelle zu übergeben:
+
+```{r}
+screenreg(list(model1, model2, model3))
+```
+
+*4. Schritt: Resultate visualisieren*
+
+Mit der `plot_model` Funktion aus dem `sjPlot` package können wir uns auch sogenannte *coefficient plots* ausgeben lassen 
+
+```{r}
+model3 %>% 
+  plot_model(show.p = T, show.values = T, sort.est = T)
+```
+
+Aber auch die Regressionsgerade:
+
+```{r}
+model3 %>% 
+  plot_model(type = "pred", terms = "radicalization")
+```
+
+Diesen Effekt können wir auch weiter aufteilen nach krimineller Vergangenheit:
+
+```{r}
+model3 %>% 
+  plot_model(type = "pred", terms = c("radicalization", "crime_history"))
+```
+
+## Logistische Regression
+
+Auch logistische Regression können einfach geschätzt werden. Hier ein weiteres Modell, bei dem wir versuchen werden zu erklären wann ein Extremist Gewalt anwendet (*violent*).
+
+```{r}
+glm1 <- glm(violent ~ unemployed + married + 
+              age + male + mental + 
+              crime_history + clique + radicalization, 
+            data = start_lm, 
+            family = "binomial")
+
+glm1
+```
+
+Mit der `plot_model` Funktion aus dem `sjPlot` package können wir uns auch sogenannte *coefficient plots* ausgeben lassen 
+
+```{r}
+glm1 %>% 
+  plot_model(show.p = T, show.values = T, sort.est = T)
+```
+
+**Vorhergesagte Wahrscheinlichkeit für kriminelle Vergangenheit**
+
+```{r}
+glm1 %>% 
+  plot_model(type = "eff", terms = "crime_history")
+```
+
+**Vorhergesagte Wahrscheinlichkeit für kriminelle Vergangenheit und Beziehungssatus**
+
+```{r}
+glm1 %>% 
+  plot_model(type = "eff", terms = c("crime_history", "married"))
+```
+
+
+**Vorhergesagte Wahrscheinlichkeit für kriminelle Vergangenheit und Familienstatus**
+
+```{r}
+glm1 %>% 
+  plot_model(type = "eff", terms = c("crime_history", "male"))
+```
+
+

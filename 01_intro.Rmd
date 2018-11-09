@@ -2,7 +2,7 @@
 title: "Computational Social Science Workshop"
 subtitle: "A Gentle Introduction to R: Basics"
 author: "R User Group"
-date: "05.11.2018"
+date: "09.11.2018"
 output: pdf_document
 ---
 
@@ -37,15 +37,15 @@ Klick doch einfach mal auf den grünen "Play" Button.
 3. Berechne die Differenz zwischen 2018 und dem Jahr, an dem du begonnen hast zu studieren und dividiere das durch die Differenz zwischen 2018 und dem Jahr, in dem du geboren wurdest. Multipliziere dies mit 100, um den Prozentsatz deines Lebens zu erhalten, den du an die Uni verbracht hast.
 
 ```{r}
-34  + 77 
 
-(500 / 125) + 3 * 6^2
 
-(2018 - 2013)/(2018 - 1991)
+
+
+
 ```
 
-### Objekte und Zuweisung
 
+### Objekte und Zuweisung
 
 In R kann man je nach Rechenleistung zehntausende Datensätze auf einmal laden und verarbeiten. Das wird möglich da jeder Datensatz seinen eigenen Namen besitzt. Dieser muss mit einem Buchstaben beginnen, kann aber durchaus auch . oder _ oder Zahlen enthalten. Um einem Objekt einen Namen zuzuweisen wird das Zeichen <- (Zuweisungspfeil) eingesetzt. Objekte können einzelne Zahlen, Variablen oder auch Datensätze sein. Mit den Objektennamen können Daten jeglicher Art abgespeichert und abgerufen werden.
 
@@ -58,16 +58,14 @@ x <- 2   #definiere x als 1
 x
 ```
 
-**Aufgaben:**
+**Aufgabe:**
 
-4. Erstelle ein neues Objekt y mit deiner Lieblingszahl. Adddiere x und y und speichere das Ergebnis in z. Gebe z aus!
+4. Erstelle ein neues Objekt y mit deiner Lieblingszahl. Addiere x und y und speichere das Ergebnis in z. Gebe z aus!
 
 ```{r}
-y <- 21
 
-z <- x + y
 
-z
+
 ```
 
 
@@ -83,7 +81,7 @@ z
 
 - `==` (logisch) ist gleich
 - `!=` (logisch) ist ungleich
-- `%in%` (string) ist gleich
+- `%in%` Vektor ist gleich
 - `>` größer als
 - `<` kleiner als
 - `>=` größer gleich
@@ -107,14 +105,17 @@ R gibt hier entweder `TRUE` oder `FALSE` aus, abhängig davon ob der benutzte lo
 
 ### Vektoren I
 
-Vektoren in R sind einfach mehrere Werte die aneinander gebunden werden. Diese können Zahlen aber auch strings (Buchstabenfolgen) sein. Hiflreich dabei ist die `c()` Funktion (c steht für *concatenate* = verketten auf Deutsch).
+Vektoren in R sind einfach mehrere Werte die aneinander gebunden werden. Diese können Zahlen aber auch strings (Buchstabenfolgen) sein. Hilfreich dabei ist die `c()` Funktion (c steht für *concatenate* = verketten auf Deutsch).
 
 **Beispiele:**
 
 
 ```{r}
 c(4, 1, 3, 4, 8)
+```
 
+
+```{r}
 vektor <- c(4, 1, 3, 4, 8) #definiere Vektor mit den Werten 4, 1, 3, 4 und 8
 
 vektor
@@ -125,6 +126,7 @@ Operatoren können auch ganz einfach mit Vektoren angewandt werden.
 ```{r}
 vektor * vektor     #vektor mit sich selbst mal nehmen
 vektor == vektor    #sind alle Werte von vektor gleich alle Werte von vektor?
+vektor %in% c(4, 8) #kommen 4 oder 8 in vektor vor?
 
 ```
 
@@ -140,9 +142,9 @@ vektor == vektor    #sind alle Werte von vektor gleich alle Werte von vektor?
 Teile dann `cm` durch Hundert um die Größen in Meter zu erhalten!
 
 ```{r}
-cm <- c(190, 152, 174)
 
-cm / 100
+
+
 ```
 
 
@@ -197,7 +199,7 @@ distanz <- function(v, t) {
 distanz(v = 50, t = 6)
 ```
 
-Nun müssen wir allerdings nicht immer selber Funktionen definieren. Im Gegenteil! `Base R` und die vielen Packages haben unzählige Funktionen, die Datenbearbeitung einfach machen. Beispielsweise gibt `mean()` den Mittelwert eines Vektors aus und `sd()` gibt die Standardabweichung.
+Nun müssen wir allerdings nicht immer selber Funktionen definieren. Im Gegenteil! `Base R` und die vielen Packages haben unzählige Funktionen, die Datenverarbeitung einfach machen. Beispielsweise gibt `mean()` den Mittelwert eines Vektors aus und `sd()` gibt die Standardabweichung.
 
 ```{r}
 vektor2 <- 1:5
@@ -205,40 +207,183 @@ mean(vektor2)   #gib den Mittelwert von vektor aus
 sd(vektor2)     #gib die Standardabweichung von vektor aus
 ```
 
+
 ### Vektoren II
 
 Nun eine kleine Übersicht über die Arten von Vektoren:
 
-**Es gibt drei Haupttypen**
+**Es gibt drei Hauptgruppen**
 
 - **Character:** aka "String" oder 'String', ist einfach nur Text.
 
+```{r}
+char <- c("Männlich", "Weiblich")
+class(char)
+```
+
 - **Factor:** Factors können eine Reihenfolge haben sogennante *Levels*.
+
+```{r}
+fac <- factor(c("Männlich", "Weiblich"))
+class(fac)
+```
 
 - **Numeric:** Jeglicher Zahleninput mit dem man rechnen kann.
 
 ```{r}
-char <- c("Männlich", "Weiblich")
-fac <- factor(c("Männlich", "Weiblich"))
 num <- c(1, 2, 3)
-
-class(char)
-class(fac)
 class(num)
 ```
 
 
-**Tranformation zwischen den Datentypen**
+**Transformation zwischen den Datentypen**
 
 - `as.character()`
 
+```{r}
+as.character(num)
+```
+
 - `as.factor()`
+
+```{r}
+as.factor(char)
+```
 
 - `as.numeric()`
 
 
 ```{r}
-as.character(num)
-as.factor(char)
 as.numeric(fac)
 ```
+
+
+### Dataframes
+
+Die meiste Zeit werden wir in R nicht mit Vektoren arbeiten, sondern mit *dataframes*. Dataframes sind letztendlich einfach nur angeordnete Vektoren und essentiell wichtig für die Datenanalyse.
+
+__Lasst uns mal einen Beispieldatensatz einladen.__
+
+
+
+## Profiles of Individual Radicalization in the United States (PIRUS)
+
+<!-- ![](https://start.umd.edu/sites/default/files/logo.png) -->
+
+
+* [**Link zum Datensatz**](https://start.umd.edu/data-tools/profiles-individual-radicalization-united-states-pirus)
+* [**Andere Open Source datasets**](https://start.umd.edu/data-and-tools/start-datasets)
+
+Profiles of Individual Radicalization in the United States (PIRUS) ist eine Datenbank mit 1.867 islamistischen, extrem linken und extrem rechten Extremisten, die von 1948 bis 2016 zu gewalttätigem und gewaltfreiem Extremismus in den Vereinigten Staaten radikalisiert haben. Die Datenbank steht auf der START-Webseite kostenlos zum Download zur Verfügung. 
+
+
+Zunächst laden wir den Datensatz ein
+
+```{r}
+load("data/start_pirus.Rdata")
+```
+
+Hier ein kleiner Ausschnitt aus dem Datensatz:
+
+```{r, eval = F}
+start_pirus
+```
+
+**Codebook**
+
+
+| Variablen       |    Beschreibung                        |
+|-----------------|----------------------------------------|
+| subject_id      |      ID der Person                     |
+| date            |      Datum                             |
+| age             |      Alter                             |
+| male            |      Geschlecht (weiblich/männlich)    |
+| student         |      Student (0/1)                     |
+| married         |      Verheiratet (0/1)                 |
+| unemployed      |      Arbeitslos (0/1)                  |
+| mental          |      Mentale Probleme (0/1)            |
+| abuse_child     |      Als Kind misshandelt (0/1)        |
+| crime_history   |      Kriminelle Vergangenheit (0/1)    |
+| violent         |      Gewalttätiger Plan (0/1)          |
+| extent          |      Fortgeschrittenheit Planung (0-5) |
+| terror_group    |      Gruppe                            |
+| radicalization  |      Wie stark überzeugt? (1-5)        |
+| clique          |      Extremistische Clique (0/1)       |
+| terror_type     |      Ideologie                         |
+
+
+Eine Sache fällt dir vielleicht auch auf: das Kürzel _NA_ steht für _Not Available_ und symbolisiert missing values oder fehlende Werte.
+
+
+**Datenzugriff**
+
+Sehr angenehm kann man auf einzelne Variablen mit Hilfe des Dollarzeichens in der Form `data$variable` zugegriffen werden.
+
+```{r, eval = F}
+head(start_pirus$terror_group)   #zeige die ersten 5 Stellen von terror_group
+
+
+```
+
+```{r}
+start_pirus$terror_group[1]      #zeige die erste Stelle von terror_group
+start_pirus$terror_group[250]    #zeige die 250. Stelle von terror_group
+```
+
+
+**Mean**
+
+```{r}
+mean(start_pirus$age, na.rm = T)
+```
+
+
+**Aufgabe**
+
+Benutze die folgenden Funktionen mit der Variable Alter:
+
+* `min()`
+* `max()`
+* `sd()`
+* `hist()`
+
+```{r}
+
+```
+
+**Summary** 
+
+```{r}
+summary(start_pirus)
+```
+
+
+
+**Indexieren mit eckigen Klammern**
+
+Wollen wir auf verschiedene Reihen oder Spalten des dataframes zugreifen, können wir das in folgenderweise tun
+
+```{r, eval = F}
+start_pirus[1, ]        #1. Reihe
+start_pirus[, 2]        #2. Spalte
+
+start_pirus[1:10, 4]    #die ersten 10 Reihen und die vierte Spalte
+```
+
+
+**Aufgabe**
+
+5. Gib die Reihe 1000 von `start_pirus` aus
+
+6. Gib die Reihe 500 bis 600 und die erste Spalte von `start_pirus` aus
+
+```{r}
+
+
+
+```
+
+
+
+
+
